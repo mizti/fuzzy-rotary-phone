@@ -1,0 +1,199 @@
+swagger: '2.0'
+info:
+  version: '1.0.0'
+  title: Chat API
+  description: API for handling chat messages with advanced context settings.
+host: 'api.example.com'
+basePath: '/'
+schemes:
+  - https
+paths:
+  /chat:
+    post:
+      summary: Send a chat message
+      description: Send a chat message and receive a response based on the provided context and settings.
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: header
+          name: Content-Type
+          type: string
+          required: true
+          default: application/json
+        - in: body
+          name: body
+          description: Chat message request payload
+          required: true
+          schema:
+            type: object
+            required:
+              - messages
+              - stream
+              - context
+            properties:
+              messages:
+                type: array
+                items:
+                  type: object
+                  required:
+                    - content
+                    - role
+                  properties:
+                    content:
+                      type: string
+                      example: What is included in my Northwind Health Plus plan that is not in standard?
+                    role:
+                      type: string
+                      example: user
+              stream:
+                type: boolean
+                example: false
+              context:
+                type: object
+                properties:
+                  overrides:
+                    type: object
+                    properties:
+                      top:
+                        type: integer
+                        example: 3
+                      retrieval_mode:
+                        type: string
+                        example: hybrid
+                      semantic_ranker:
+                        type: boolean
+                        example: false
+                      semantic_captions:
+                        type: boolean
+                        example: false
+                      suggest_followup_questions:
+                        type: boolean
+                        example: false
+                      use_oid_security_filter:
+                        type: boolean
+                        example: false
+                      use_groups_security_filter:
+                        type: boolean
+                        example: false
+                      vector_fields:
+                        type: array
+                        items:
+                          type: string
+                        example: ["embedding"]
+                      use_gpt4v:
+                        type: boolean
+                        example: false
+                      gpt4v_input:
+                        type: string
+                        example: textAndImages
+              session_state:
+                type: object
+                example: null
+      responses:
+        '200':
+          description: Chat message response
+          schema:
+            type: object
+            properties:
+              choices:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    content_filter_results:
+                      type: object
+                      properties:
+                        hate:
+                          type: object
+                          properties:
+                            filtered:
+                              type: boolean
+                              example: false
+                            severity:
+                              type: string
+                              example: safe
+                        self_harm:
+                          $ref: '#/definitions/FilterResult'
+                        sexual:
+                          $ref: '#/definitions/FilterResult'
+                        violence:
+                          $ref: '#/definitions/FilterResult'
+                    context:
+                      type: object
+                      properties:
+                        data_points:
+                          type: object
+                          properties:
+                            text:
+                              type: array
+                              items:
+                                type: string
+                        thoughts:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              description:
+                                type: object
+                              props:
+                                type: object
+                              title:
+                                type: string
+                    finish_reason:
+                      type: string
+                      example: stop
+                    index:
+                      type: integer
+                      example: 0
+                    logprobs:
+                      type: object
+                      example: null
+                    message:
+                      type: object
+                      properties:
+                        content:
+                          type: string
+                        function_call:
+                          type: object
+                        role:
+                          type: string
+                        tool_calls:
+                          type: object
+                    session_state:
+                      type: object
+              created:
+                type: integer
+              id:
+                type: string
+              model:
+                type: string
+              object:
+                type: string
+              prompt_filter_results:
+                type: array
+                items:
+                  $ref: '#/definitions/FilterResult'
+              system_fingerprint:
+                type: object
+              usage:
+                type: object
+                properties:
+                  completion_tokens:
+                    type: integer
+                  prompt_tokens:
+                    type: integer
+                  total_tokens:
+                    type: integer
+definitions:
+  FilterResult:
+    type: object
+    properties:
+      filtered:
+        type: boolean
+        example: false
+      severity:
+        type: string
+        example: safe
+
